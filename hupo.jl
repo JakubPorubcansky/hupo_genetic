@@ -9,11 +9,11 @@ using Flux: onehot
 @enum Move up = 1 right = 2 down = 3 left = 4 out = 5
 
 
-get_active_stone(state) = findfirst(view(state, 13:18), 2)
+get_active_stone(state) = findnext(x -> x == 2, state, 13) - 12
 get_active_player(active_stone) = active_stone ∈ (1, 2, 3) ? :top : :bot
 
 function fill_state_beginning!(state)
-  state[:] .= [3; 2; 1; 2; 3; 2; 3; 2; 5; 2; 3; 2; -1; 2; -1; -1; 0; -1]
+  state[:] .= [3; 2; 1; 2; 3; 2; 3; 2; 3; 2; 3; 2; -1; 2; -1; -1; 0; -1]
 end
 
 const gX = [Int.(onehot(x, 1:5)) for x in 1:5]
@@ -36,38 +36,40 @@ function sample_move(state, active_stone, net_move)
 
   stone_position = [state[active_stone*2 - 1];state[active_stone*2]]
 
-  for move in instances(Move)[1:4] # check moves plausibility except getting out
-    new_position = copy(stone_position)
-    if move == up
-        new_position[1] -=1
-    elseif move == right
-        new_position[2] +=1
-    elseif move == down
-        new_position[1] +=1
-    elseif move == left
-        new_position[2] -=1
-    end
-
-    # check for middle
-    if new_position == [3; 2]
-        p[Int(move)] = 0.
-    end
-    # check if there is another stone
-    for stone in 1:6
-        if new_position == state[stone*2-1:stone*2]
-            p[Int(move)] = 0.
-        end
-    end
-    # check if out of the board
-    if new_position[1] ∈ [0; 6] || new_position[2] ∈ [0; 4]
-        p[Int(move)] = 0.
-    end
-  end
+  wrongMove = false
+  new_position = copy(stone_position)
 
   (all(p .== 0.)) && (return out) # if you can do something else than get kicked, do
   p ./= sum(p)
   r = rand()
   move = Move(findfirst(x -> x >= r, cumsum(p)))
+
+  if move == up
+      new_position[1] -=1
+  elseif move == right
+      new_position[2] +=1
+  elseif move == down
+      new_position[1] +=1
+  elseif move == left
+      new_position[2] -=1
+  end
+
+  # check for middle
+  if new_position == [3; 2]
+      wrongMove = true
+  end
+  # check if there is another stone
+  for stone in 1:6
+      if new_position == state[stone*2-1:stone*2]
+          wrongMove = true
+      end
+  end
+  # check if out of the board
+  if new_position[1] ∈ [0; 6] || new_position[2] ∈ [0; 4]
+      wrongMove = true
+  end
+
+  return (move, wrongMove)
 end
 
 
@@ -144,13 +146,15 @@ function game(net_top_move, net_top_pass, net_bot_move, net_bot_pass)
     while true
       game_length += 1
 
-      move = active_player == :top ? sample_move(state, active_stone, net_top_move) : sample_move(state, active_stone, net_bot_move)
+      (move, wrongMove) = active_player == :top ? sample_move(state, active_stone, net_top_move) : sample_move(state, active_stone, net_bot_move)
       active_stone = apply_move!(state, active_stone, move)
-      pass = active_player == :top ? sample_pass(state, active_stone, net_top_pass) : sample_pass(state, active_stone, net_bot_pass)
-      active_stone = apply_pass!(state, active_stone, pass)
+      # pass = active_player == :top ? sample_pass(state, active_stone, net_top_pass) : sample_pass(state, active_stone, net_bot_pass)
+      # active_stone = apply_pass!(state, active_stone, pass)
+      pass = 2
+
       won, active_player = check_state(state, active_stone)
 
-      if won ∈ [:top_player_won :bottom_player_won]
+      if (won ∈ [:top_player_won :bottom_player_won] || wrongMove == true)
           return won, game_length
       end
     end

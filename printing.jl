@@ -15,15 +15,19 @@ function game_show(net_top_move, net_top_pass, net_bot_move, net_bot_pass)
 
     while true
         readline()
-        clear(15)
+        clear(16)
 
         idx = get_active_stone(state)
+        println(idx)
         pos = (state[2*idx - 1], state[2*idx])
 
+        prev_active_stone = active_stone
         move = active_player == :top ? sample_move(state, active_stone, net_top_move) : sample_move(state, active_stone, net_bot_move)
         active_stone = apply_move!(state, active_stone, move)
-        pass = active_player == :top ? sample_pass(state, active_stone, net_top_pass) : sample_pass(state, active_stone, net_bot_pass)
-        active_stone = apply_pass!(state, active_stone, pass)
+        # pass = active_player == :top ? sample_pass(state, active_stone, net_top_pass) : sample_pass(state, active_stone, net_bot_pass)
+        # active_stone = apply_pass!(state, active_stone, pass)
+        pass = 2
+
         won, active_player = check_state(state, active_stone)
 
         println("Round $(round_number)")

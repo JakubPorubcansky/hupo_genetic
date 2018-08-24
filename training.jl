@@ -45,12 +45,12 @@ function loss_pass(state, pass, reward)
 end
 
 
-function signal_handler(sig::Cint)::Void
-    global numOfEpochs = 0
-    return
-end
-signal_handler_c = cfunction(signal_handler, Void, (Cint,))
-ccall(:signal, Cint, (Cint, Ptr{Void}), 2, signal_handler_c)
+# function signal_handler(sig::Cint)::Void
+#     global numOfEpochs = 0
+#     return
+# end
+# signal_handler_c = cfunction(signal_handler, Void, (Cint,))
+# ccall(:signal, Cint, (Cint, Ptr{Void}), 2, signal_handler_c)
 
 
 function train_hupo!()
@@ -101,5 +101,5 @@ function train_hupo!()
 end
 
 
-train_hupo!()
-game_show(net_top_move, net_top_pass, net_bot_move, net_bot_pass)
+# train_hupo!()
+# game_show(net_top_move, net_top_pass, net_bot_move, net_bot_pass)
