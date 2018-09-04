@@ -1,7 +1,7 @@
 include("UnicodeGrids.jl")
 include("printing.jl")
 using .UnicodeGrids
-using Statistics
+# using Statistics
 using Flux
 using Flux: onehot
 
@@ -29,7 +29,8 @@ is_valid_position(position) = position == [3; 2] ||
 
 is_winning_position(position) = position == [4; 2] ? true : false
 
-game_over(gr) = findfirst(x -> x == 0, view(gr, :, 1)) == nothing ? true : false
+# game_over(gr) = findfirst(x -> x == 0, view(gr, :, 1)) == nothing ? true : false
+game_over(gr) = findfirst(x -> x == 0, view(gr, :, 1)) == 0 ? true : false
 
 function game(agents, begin_state, game_len)
     N = length(agents)
