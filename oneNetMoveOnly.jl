@@ -11,7 +11,7 @@ moveDict = Dict("up" => [-1, 0], "right" => [0, 1], "down" => [1, 0], "left" => 
 get_position(state, active_stone) = [state[active_stone*2 - 1]; state[active_stone*2]]
 
 
-function make_move!(agent, active_stone, state)
+function make_move!(agent, state, active_stone)
     p = agent(state).data .+ 1e-6
 
     stone_position = get_position(state, active_stone)
@@ -46,7 +46,7 @@ function game(agents, begin_state, game_len)
 
       for (i, (ag, st)) in enumerate(zip(agents, states))
            game_results[i, 1] != 0 && continue
-           make_move!(ag, active_stone, st)
+           make_move!(ag, st, active_stone)
            pos = get_position(st, active_stone)
 
            if !is_valid_position(pos) || game_length >= game_len
@@ -79,7 +79,7 @@ function game_show(agent, begin_state, game_len)
         readline()
         clear(16)
 
-        make_move!(agent, active_stone, state)
+        make_move!(agent, state, active_stone)
         pos = get_position(state, active_stone)
 
         if !is_valid_position(pos)

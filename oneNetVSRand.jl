@@ -11,7 +11,7 @@ moveDict = Dict("up" => [-1, 0], "right" => [0, 1], "down" => [1, 0], "left" => 
 get_position(state, active_stone) = [state[active_stone*2 - 1]; state[active_stone*2]]
 
 
-function make_move!(agent, active_stone, state)
+function make_move!(agent, state, active_stone)
     p = agent(state).data .+ 1e-6
 
     stone_position = get_position(state, active_stone)
@@ -24,11 +24,12 @@ function make_move!(agent, active_stone, state)
     state[active_stone*2 - 1 : active_stone*2] .= stone_position
 end
 
-function opponent_move!(stone, state)
+function opponent_move!(state, stone, op_op_stone)
     position = get_position(state, stone)
+    op_op_pos = get_position(state, op_op_stone)
 
     all_positions = [position .+ moveDict[string(Move(i))] for i in 1:4]
-    possible_positions_idcs = [i for i in eachindex(all_positions) if is_valid_position(all_positions[i], [0, 0])]
+    possible_positions_idcs = [i for i in eachindex(all_positions) if is_valid_position(all_positions[i], op_op_pos)]
 
     state[stone*2 - 1 : stone*2] .= all_positions[rand(possible_positions_idcs)]
 end
@@ -48,7 +49,7 @@ function game(agents, begin_state, game_len)
     states = [begin_state[:] for _ in 1:N]
 
     game_results = zeros(N, 2)
-    active_stone = 2
+    my_stone = 2
     oponent_stone = 5
     game_length = 0
 
@@ -57,9 +58,11 @@ function game(agents, begin_state, game_len)
 
       for (i, (ag, st)) in enumerate(zip(agents, states))
            game_results[i, 1] != 0 && continue
-           make_move!(ag, active_stone, st)
-           opponent_move!(oponent_stone, st)
-           pos = get_position(st, active_stone)
+
+           make_move!(ag, st, my_stone)
+           opponent_move!(st, oponent_stone, my_stone)
+
+           pos = get_position(st, my_stone)
            oponent_pos = get_position(st, oponent_stone)
 
            if !is_valid_position(pos, oponent_pos) || game_length >= game_len
@@ -80,7 +83,7 @@ end
 function game_show(agent, begin_state, game_len)
     state = begin_state[:]
 
-    active_stone = 2
+    my_stone = 2
     oponent_stone = 5
     round_number = 1
 
@@ -93,9 +96,10 @@ function game_show(agent, begin_state, game_len)
         readline()
         clear(16)
 
-        make_move!(agent, active_stone, state)
-        opponent_move!(oponent_stone, state)
-        pos = get_position(state, active_stone)
+        make_move!(agent, state, my_stone)
+        opponent_move!(state, oponent_stone, my_stone)
+
+        pos = get_position(state, my_stone)
         oponent_pos = get_position(state, oponent_stone)
 
         if !is_valid_position(pos, oponent_pos)
