@@ -1,12 +1,10 @@
-include("oneNetVSRand.jl")
+include("tournament.jl")
 
 Nagents = 100
-Ngames = 50
 Nepochs = 20
-game_len = 10
 select = 1/3
 
-Nmutations = 10
+Nmutations = 5
 
 beginning_state = [3; 2; 1; 2; 3; 2; 3; 2; 5; 2; 3; 2; -1; 2; -1; -1; 1; -1]
 # input = 18
@@ -29,4 +27,4 @@ for a in agents
     params(a)[2].data .= rand(hidden) .- 0.5
     params(a)[4].data .= rand(output) .- 0.5
 end
-result = zeros(Nagents, 3)
+result = zeros(Nagents, 2)
