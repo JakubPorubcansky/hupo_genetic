@@ -1,3 +1,5 @@
+using StatsBase
+
 include("tournament.jl")
 
 Nagents = 100

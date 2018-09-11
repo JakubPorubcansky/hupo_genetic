@@ -43,12 +43,16 @@ function game(agent1, agent2, begin_state)
         make_move!(agent1, state, a1Stone)
         pos1 = get_position(state, a1Stone)
         pos2 = get_position(state, a2Stone)
-        !is_valid_position(pos1, pos2) || is_winning_position(pos1, a1Stone) && return [evaluate_position(pos1, a1Stone), evaluate_position(pos2, a2Stone)]
+        # !is_valid_position(pos1, pos2) || is_winning_position(pos1, a1Stone) && return [evaluate_position(pos1, a1Stone), evaluate_position(pos2, a2Stone)]
+        !is_valid_position(pos1, pos2) && return [0, 1]
+        is_winning_position(pos1, a1Stone) && return [30, 0]
 
         make_move!(agent2, state, a2Stone)
         pos2 = get_position(state, a2Stone)
         pos1 = get_position(state, a1Stone)
-        !is_valid_position(pos2, pos1) || is_winning_position(pos2, a2Stone) && return [evaluate_position(pos1, a1Stone), evaluate_position(pos2, a2Stone)]
+        # !is_valid_position(pos2, pos1) || is_winning_position(pos2, a2Stone) && return [evaluate_position(pos1, a1Stone), evaluate_position(pos2, a2Stone)]
+        !is_valid_position(pos2, pos1) && return [1, 0]
+        is_winning_position(pos2, a2Stone) && return [0, 30] 
 
         game_len > 50 && return [evaluate_position(pos1, a1Stone), evaluate_position(pos2, a2Stone)]
         game_len += 1

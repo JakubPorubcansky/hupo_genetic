@@ -17,10 +17,14 @@ for epoch in 1:Nepochs
     ### selection
     n_sel = Int(round(select * 100))
     idcs = convert.(Int, result[1:n_sel, 1])
+    weights = result[1:n_sel, 2] ./ sum(result[1:n_sel, 2])
+    items = 1:n_sel
 
     for (idx, i) in enumerate(setdiff(1:Nagents, idcs))
         ### crossover
-        ridx = rand(idcs)
+        # ridx = rand(idcs)
+        ridx = sample(items, Weights(weights))
+        
         for j in 1:length(params(agents[i]))
             params(agents[i])[j].data .= params(agents[ridx])[j].data
         end
