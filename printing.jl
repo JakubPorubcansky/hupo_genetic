@@ -1,47 +1,97 @@
 @enum Move up = 1 right = 2 down = 3 left = 4 out = 5
 const d_moves = Dict(up => "↑", right => "→", down => "↓", left => "←", out => "~")
 
-function game_show(net_top_move, net_top_pass, net_bot_move, net_bot_pass)
-    state = Array{Int}(undef,6*2+6)
-    fill_state_beginning!(state)
-    active_player = :top
-    active_stone = 2
-    round_number = 1
+userMV = Dict("\e[C" => "right", "\e[A" => "up", "\e[B" => "down", "\e[D" => "left")
+
+function game_show(agents, begin_state)
+    stones = [2, 5]
+
+    state = begin_state[:]
+    game_len = 1
+
+    active = 1
 
     println()
-    println("Round $(round_number)")
+    println("Round $(game_len)")
     print_state(state)
     println("press <Enter>")
 
     while true
         readline()
-        clear(16)
+        clear(14)
 
-        idx = get_active_stone(state)
-        println(idx)
-        pos = (state[2*idx - 1], state[2*idx])
+        make_move!(agents[active], state, stones[active])
+        pos1 = get_position(state, stones[active])
+        pos2 = get_position(state, stones[3-active])
+        !is_valid_position(pos1, pos2) && return [0, 1]
+        is_winning_position(pos1, stones[active]) && return [1, 0]
 
-        prev_active_stone = active_stone
-        move = active_player == :top ? sample_move(state, active_stone, net_top_move) : sample_move(state, active_stone, net_bot_move)
-        active_stone = apply_move!(state, active_stone, move)
-        # pass = active_player == :top ? sample_pass(state, active_stone, net_top_pass) : sample_pass(state, active_stone, net_bot_pass)
-        # active_stone = apply_pass!(state, active_stone, pass)
-        pass = 2
-
-        won, active_player = check_state(state, active_stone)
-
-        println("Round $(round_number)")
-        print_state(state)
-        println("player $idx moves $(d_moves[move])  and passes token to player $(pass)")
-
-        if won ∈ (:top_player_won, :bottom_player_won)
-            println(won)
+        if !is_valid_position(pos1, pos2)
+            println("INVALID POSITION")
             break
         end
-        round_number += 1
+        if is_winning_position(pos1, stones[active])
+            println("WINNING POSITION")
+            break
+        end
+
+        game_len > 50 && break
+
+        println("Round $(game_len)")
+        print_state(state)
+
+        active = 3-active
+        game_len += 1
     end
 end
 
+function interact(agent, begin_state)
+    stones = [2, 5]
+
+    state = begin_state[:]
+    game_len = 1
+
+    active = 1
+
+    println()
+    println("Round $(game_len)")
+    print_state(state)
+
+    while true
+        if active == 1
+            println("Opponent's turn (press <Enter>)")
+            readline()
+
+            make_move!(agents[active], state, stones[active])
+
+            pos1 = get_position(state, stones[active])
+            pos2 = get_position(state, stones[3-active])
+            !is_valid_position(pos1, pos2) && break
+            is_winning_position(pos1, stones[active]) && break
+        else
+            println("Your turn (use keys to move)")
+            key = chomp(readline())
+
+            state[stones[active]*2 - 1 : stones[active]*2] .+= moveDict[userMV[key]]
+            pos2 = get_position(state, stones[active])
+            pos1 = get_position(state, stones[3-active])
+
+            !is_valid_position(pos2, pos1) && break
+            is_winning_position(pos2, stones[active]) && break
+
+        end
+
+        clear(14)
+
+        game_len > 50 && break
+
+        println("Round $(game_len)")
+        print_state(state)
+
+        active = 3-active
+        game_len += 1
+    end
+end
 
 function print_state(state::Array{Int})
     M = fill(" ", 5, 3)

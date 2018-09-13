@@ -52,51 +52,9 @@ function game(agent1, agent2, begin_state)
         pos1 = get_position(state, a1Stone)
         # !is_valid_position(pos2, pos1) || is_winning_position(pos2, a2Stone) && return [evaluate_position(pos1, a1Stone), evaluate_position(pos2, a2Stone)]
         !is_valid_position(pos2, pos1) && return [1, 0]
-        is_winning_position(pos2, a2Stone) && return [0, 30] 
+        is_winning_position(pos2, a2Stone) && return [0, 30]
 
         game_len > 50 && return [evaluate_position(pos1, a1Stone), evaluate_position(pos2, a2Stone)]
-        game_len += 1
-    end
-end
-
-function game_show(agents, begin_state)
-    stones = [2, 5]
-
-    state = begin_state[:]
-    game_len = 1
-
-    active = 1
-
-    println()
-    println("Round $(game_len)")
-    print_state(state)
-    println("press <Enter>")
-
-    while true
-        readline()
-        clear(14)
-
-        make_move!(agents[active], state, stones[active])
-        pos1 = get_position(state, stones[active])
-        pos2 = get_position(state, stones[3-active])
-        !is_valid_position(pos1, pos2) && return [0, 1]
-        is_winning_position(pos1, stones[active]) && return [1, 0]
-
-        if !is_valid_position(pos1, pos2)
-            println("INVALID POSITION")
-            break
-        end
-        if is_winning_position(pos1, stones[active])
-            println("WINNING POSITION")
-            break
-        end
-
-        game_len > 50 && break
-
-        println("Round $(game_len)")
-        print_state(state)
-
-        active = 3-active
         game_len += 1
     end
 end
