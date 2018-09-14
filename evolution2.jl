@@ -1,5 +1,6 @@
 
 for epoch in 1:Nepochs
+    result[:, 3] .= 0
     result[:, 2] .= 0
     result[:, 1] = 1:Nagents
     for i in 1:Nagents
@@ -8,6 +9,8 @@ for epoch in 1:Nepochs
             res = game(agents[i], agents[j], beginning_state)
             result[i, 2] .+= res[1]
             result[j, 2] .+= res[2]
+            result[i, 3] .+= res[1] == 30 ? 1 : 0
+            result[j, 3] .+= res[2] == 30 ? 1 : 0
         end
     end
 
@@ -22,9 +25,18 @@ for epoch in 1:Nepochs
 
     for (idx, i) in enumerate(setdiff(1:Nagents, idcs))
         ### crossover
-        # ridx = rand(idcs)
+        # ridx1 = sample(items, Weights(weights))
+        # ridx2 = sample(items, Weights(weights))
+        #
+        # for j in 1:length(params(agents[i]))
+        #     if j <= length(params(agents[i])) / 2
+        #         params(agents[i])[j].data .= params(agents[ridx1])[j].data
+        #     else
+        #         params(agents[i])[j].data .= params(agents[ridx2])[j].data
+        #     end
+        # end
+
         ridx = sample(items, Weights(weights))
-        
         for j in 1:length(params(agents[i]))
             params(agents[i])[j].data .= params(agents[ridx])[j].data
         end
@@ -41,8 +53,9 @@ for epoch in 1:Nepochs
         end
     end
     println(epoch)
-    println(result[1:5, 2])
-    println(result[1:5, 1])
+    println("NWinPos", result[1:5, 3])
+    println("NWin", result[1:5, 2])
+    println("Idcs", convert.(Int, result[1:5, 1]))
 end
 
 # function evolution_train!(restab, Ngames, Nepochs, game_len, select, Nmutations, beginning_state, input, hidden, output)

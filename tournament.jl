@@ -24,13 +24,18 @@ function make_move!(agent, state, active_stone)
     state[active_stone*2 - 1 : active_stone*2] .= stone_position
 end
 
+function pass!(state, stoneFrom, stoneTo)
+    state[12 + stoneFrom] = 1
+    state[12 + stoneTo] = 2
+end
+
 is_valid_position(pos, oponent_pos) = pos == [3; 2] ||
                               pos[1] ∈ [0; 6] || pos[2] ∈ [0; 4] ||
                               pos == oponent_pos? false : true
 
 is_winning_position(pos, stone) = stone <= 3 ? pos == [4, 2] : pos == [2, 2]
 
-evaluate_position(pos, stone) = stone <= 3 ? 4 - sum(abs.(pos .- [4, 2])) : 4 - sum(abs.(pos .- [2, 2]))
+# evaluate_position(pos, stone) = stone <= 3 ? 4 - sum(abs.(pos .- [4, 2])) : 4 - sum(abs.(pos .- [2, 2]))
 
 function game(agent1, agent2, begin_state)
     a1Stone = 2
@@ -47,6 +52,10 @@ function game(agent1, agent2, begin_state)
         !is_valid_position(pos1, pos2) && return [0, 1]
         is_winning_position(pos1, a1Stone) && return [30, 0]
 
+        pass!(state, a1Stone, a2Stone)
+
+        println(state)
+
         make_move!(agent2, state, a2Stone)
         pos2 = get_position(state, a2Stone)
         pos1 = get_position(state, a1Stone)
@@ -54,7 +63,11 @@ function game(agent1, agent2, begin_state)
         !is_valid_position(pos2, pos1) && return [1, 0]
         is_winning_position(pos2, a2Stone) && return [0, 30]
 
-        game_len > 50 && return [evaluate_position(pos1, a1Stone), evaluate_position(pos2, a2Stone)]
+        pass!(state, a2Stone, a1Stone)
+
+        println(state)
+
+        game_len > 50 && return [0, 0]
         game_len += 1
     end
 end

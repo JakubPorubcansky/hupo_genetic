@@ -29,4 +29,4 @@ for a in agents
     params(a)[2].data .= rand(hidden) .- 0.5
     params(a)[4].data .= rand(output) .- 0.5
 end
-result = zeros(Nagents, 2)
+result = zeros(Nagents, 3)

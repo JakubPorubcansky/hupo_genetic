@@ -35,6 +35,8 @@ function game_show(agents, begin_state)
             break
         end
 
+        pass!(state, stones[active], stones[3-active])
+
         game_len > 50 && break
 
         println("Round $(game_len)")
@@ -75,11 +77,11 @@ function interact(agent, begin_state)
             state[stones[active]*2 - 1 : stones[active]*2] .+= moveDict[userMV[key]]
             pos2 = get_position(state, stones[active])
             pos1 = get_position(state, stones[3-active])
-
             !is_valid_position(pos2, pos1) && break
             is_winning_position(pos2, stones[active]) && break
-
         end
+
+        pass!(state, stones[active], stones[3-active])
 
         clear(14)
 
