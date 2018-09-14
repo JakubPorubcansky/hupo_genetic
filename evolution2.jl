@@ -9,8 +9,8 @@ for epoch in 1:Nepochs
             res = game(agents[i], agents[j], beginning_state)
             result[i, 2] .+= res[1]
             result[j, 2] .+= res[2]
-            result[i, 3] .+= res[1] == 30 ? 1 : 0
-            result[j, 3] .+= res[2] == 30 ? 1 : 0
+            result[i, 3] .+= res[1] == winReward ? 1 : 0
+            result[j, 3] .+= res[2] == winReward ? 1 : 0
         end
     end
 
@@ -25,6 +25,7 @@ for epoch in 1:Nepochs
 
     for (idx, i) in enumerate(setdiff(1:Nagents, idcs))
         ### crossover
+        
         # ridx1 = sample(items, Weights(weights))
         # ridx2 = sample(items, Weights(weights))
         #
@@ -57,10 +58,3 @@ for epoch in 1:Nepochs
     println("NWin", result[1:5, 2])
     println("Idcs", convert.(Int, result[1:5, 1]))
 end
-
-# function evolution_train!(restab, Ngames, Nepochs, game_len, select, Nmutations, beginning_state, input, hidden, output)
-
-
-# for agent in agents
-#     println([maximum(params(agent)[i].data[:]) for i in 1:4])
-# end

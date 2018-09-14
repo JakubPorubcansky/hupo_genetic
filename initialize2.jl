@@ -6,6 +6,8 @@ Nagents = 100
 Nepochs = 20
 select = 1/3
 
+winReward = 300
+
 Nmutations = 5
 
 beginning_state = [3; 2; 1; 2; 3; 2; 3; 2; 5; 2; 3; 2; -1; 2; -1; -1; 1; -1]

@@ -1,7 +1,6 @@
 include("UnicodeGrids.jl")
 include("printing.jl")
 using .UnicodeGrids
-# using Statistics
 using Flux
 using Flux: onehot
 
@@ -9,7 +8,6 @@ using Flux: onehot
 moveDict = Dict("up" => [-1, 0], "right" => [0, 1], "down" => [1, 0], "left" => [0, -1])
 
 get_position(state, active_stone) = [state[active_stone*2 - 1]; state[active_stone*2]]
-
 
 function make_move!(agent, state, active_stone)
     p = agent(state).data .+ 1e-6
@@ -50,22 +48,22 @@ function game(agent1, agent2, begin_state)
         pos2 = get_position(state, a2Stone)
         # !is_valid_position(pos1, pos2) || is_winning_position(pos1, a1Stone) && return [evaluate_position(pos1, a1Stone), evaluate_position(pos2, a2Stone)]
         !is_valid_position(pos1, pos2) && return [0, 1]
-        is_winning_position(pos1, a1Stone) && return [30, 0]
+        is_winning_position(pos1, a1Stone) && return [winReward, 0]
 
         pass!(state, a1Stone, a2Stone)
 
-        println(state)
+        # println(state)
 
         make_move!(agent2, state, a2Stone)
         pos2 = get_position(state, a2Stone)
         pos1 = get_position(state, a1Stone)
         # !is_valid_position(pos2, pos1) || is_winning_position(pos2, a2Stone) && return [evaluate_position(pos1, a1Stone), evaluate_position(pos2, a2Stone)]
         !is_valid_position(pos2, pos1) && return [1, 0]
-        is_winning_position(pos2, a2Stone) && return [0, 30]
+        is_winning_position(pos2, a2Stone) && return [0, winReward]
 
         pass!(state, a2Stone, a1Stone)
 
-        println(state)
+        # println(state)
 
         game_len > 50 && return [0, 0]
         game_len += 1
